@@ -10,13 +10,12 @@ class TournamentController extends Controller
     public function index()
     {
         $tournaments = Tournament::all();
-
-        return view('torneos', compact('tournaments'));
+        return view('torneos.index', compact('tournaments'));
     }
 
     public function create()
     {
-        return view('torneos-create');
+        return view('torneos.create');
     }
 
     public function store(Request $request)
@@ -30,21 +29,20 @@ class TournamentController extends Controller
 
         Tournament::create($request->all());
 
-        return redirect()->route('torneos.index')
+        return redirect()
+            ->route('torneos.index')
             ->with('success', 'Torneo creado correctamente');
     }
 
     public function show(Tournament $tournament)
     {
         $teams = $tournament->teams;
-
-        return view('torneos-show', compact('tournament', 'teams'));
+        return view('torneos.show', compact('tournament', 'teams'));
     }
-
 
     public function edit(Tournament $tournament)
     {
-        return view('torneos-edit', compact('tournament'));
+        return view('torneos.edit', compact('tournament'));
     }
 
     public function update(Request $request, Tournament $tournament)
@@ -62,6 +60,7 @@ class TournamentController extends Controller
             ->route('torneos.show', $tournament)
             ->with('success', 'Torneo actualizado correctamente');
     }
+
     public function destroy(Tournament $tournament)
     {
         $tournament->delete();
@@ -70,7 +69,4 @@ class TournamentController extends Controller
             ->route('torneos.index')
             ->with('success', 'Torneo eliminado correctamente');
     }
-
-
-
 }

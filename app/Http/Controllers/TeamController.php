@@ -8,11 +8,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
 class TeamController extends Controller
 {
     /* ==========================
-     *  UTILIDAD
+     *  PERMISOS
      * ========================== */
 
     private function isCaptain(Team $team): bool
@@ -21,18 +20,16 @@ class TeamController extends Controller
             return false;
         }
 
-        // El admin puede hacer todo
+        // Admin puede hacer todo
         if (Auth::user()->role === 'admin') {
             return true;
         }
 
-        // Capitán normal
         return $team->users()
             ->where('users.id', Auth::id())
             ->wherePivot('role', 'captain')
             ->exists();
     }
-
 
     /* ==========================
      *  CREAR EQUIPO
@@ -45,10 +42,6 @@ class TeamController extends Controller
 
     public function store(Request $request, Tournament $tournament)
     {
-        if (!Auth::check()) {
-            abort(403);
-        }
-
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -59,16 +52,13 @@ class TeamController extends Controller
             'description' => $request->description,
         ]);
 
-        // Creador = capitán
-        $team->users()->attach(Auth::id(), [
-            'role' => 'captain'
-        ]);
+        // El creador pasa a ser capitán
+        $team->users()->attach(Auth::id(), ['role' => 'captain']);
 
         return redirect()
             ->route('torneos.show', $tournament)
             ->with('success', 'Equipo creado correctamente');
     }
-
 
     /* ==========================
      *  VER EQUIPO
@@ -79,7 +69,6 @@ class TeamController extends Controller
         $team->load('users');
 
         $isCaptain = $this->isCaptain($team);
-
 
         $availableUsers = User::whereNotIn(
             'id',
@@ -157,9 +146,7 @@ class TeamController extends Controller
         ]);
 
         if (!$team->users()->where('user_id', $request->user_id)->exists()) {
-            $team->users()->attach($request->user_id, [
-                'role' => 'player'
-            ]);
+            $team->users()->attach($request->user_id, ['role' => 'player']);
         }
 
         return redirect()
@@ -186,7 +173,6 @@ class TeamController extends Controller
             abort(403);
         }
 
-        // Quitar capitán actual
         $team->users()->updateExistingPivot(
             $team->users()
                 ->wherePivot('role', 'captain')
@@ -194,7 +180,6 @@ class TeamController extends Controller
             ['role' => 'player']
         );
 
-        // Asignar nuevo capitán
         $team->users()->updateExistingPivot(
             $user->id,
             ['role' => 'captain']
