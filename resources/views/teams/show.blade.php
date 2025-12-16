@@ -5,6 +5,17 @@
 
     <p>{{ $team->description }}</p>
 
+    <p>
+        Rol en este equipo:
+        <strong>
+            @if ($isCaptain)
+                Gestor (Admin / Capitán)
+            @else
+                Jugador
+            @endif
+        </strong>
+    </p>
+
     <hr>
 
     <h2>Jugadores</h2>
@@ -15,19 +26,16 @@
         <ul>
             @foreach ($team->users as $user)
                 <li>
-                    {{ $user->name }} ({{ $user->email }})
+                {{ $user->name }} ({{ $user->email }})
 
-                    @if ($user->pivot->role === 'captain')
-                        — <strong>Capitán</strong>
-                    @else
-                        <form action="{{ route('teams.makeCaptain', [$team, $user]) }}"
-                            method="POST"
-                            style="display:inline">
-                            @csrf
-                            <button type="submit">Hacer capitán</button>
-                        </form>
-                    @endif
+                @if ($user->pivot->role === 'captain')
+                    — <strong>Capitán</strong>
+                @else
+                    — Jugador
+                @endif
 
+                @if ($isCaptain)
+                    {{-- Acciones de gestión --}}
                     <form action="{{ route('teams.users.remove', [$team, $user]) }}"
                         method="POST"
                         style="display:inline">
@@ -38,36 +46,50 @@
                             Quitar
                         </button>
                     </form>
-                </li>
+
+                    @if ($user->pivot->role !== 'captain')
+                        <form action="{{ route('teams.makeCaptain', [$team, $user]) }}"
+                            method="POST"
+                            style="display:inline">
+                            @csrf
+                            <button type="submit">Hacer capitán</button>
+                        </form>
+                    @endif
+                @endif
+            </li>
+
             @endforeach
         </ul>
     @endif
 
+    <hr>
+
+    @if ($isCaptain)
+        <h3>Añadir jugador</h3>
+
+        @if ($availableUsers->isEmpty())
+            <p>No hay jugadores disponibles para añadir.</p>
+        @else
+            <form action="{{ route('teams.users.add', $team) }}" method="POST">
+                @csrf
+
+                <select name="user_id" required>
+                    <option value="">-- Selecciona jugador --</option>
+                    @foreach ($availableUsers as $user)
+                        <option value="{{ $user->id }}">
+                            {{ $user->name }} ({{ $user->email }})
+                        </option>
+                    @endforeach
+                </select>
+
+                <button type="submit">Añadir</button>
+            </form>
+        @endif
+    @endif
 
     <hr>
 
-    <h3>Añadir jugador</h3>
-
-    <form action="{{ route('teams.users.add', $team) }}" method="POST">
-        @csrf
-
-        <select name="user_id" required>
-            <option value="">-- Selecciona jugador --</option>
-            @foreach (\App\Models\User::all() as $user)
-                <option value="{{ $user->id }}">
-                    {{ $user->name }} ({{ $user->email }})
-                </option>
-            @endforeach
-        </select>
-
-        <button type="submit">Añadir</button>
-    </form>
-
-
-    <hr>
-
-    <<a href="{{ route('torneos.show', $team->tournament_id) }}">
-
+    <a href="{{ route('torneos.show', $team->tournament_id) }}">
         Volver al torneo
     </a>
 @endsection

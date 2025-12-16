@@ -21,6 +21,12 @@ class TeamController extends Controller
             return false;
         }
 
+        // El admin puede hacer todo
+        if (Auth::user()->role === 'admin') {
+            return true;
+        }
+
+        // Capitán normal
         return $team->users()
             ->where('users.id', Auth::id())
             ->wherePivot('role', 'captain')
@@ -73,6 +79,7 @@ class TeamController extends Controller
         $team->load('users');
 
         $isCaptain = $this->isCaptain($team);
+
 
         $availableUsers = User::whereNotIn(
             'id',

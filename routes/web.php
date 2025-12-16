@@ -3,6 +3,7 @@
 use App\Http\Controllers\TournamentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('inicio');
@@ -65,5 +66,13 @@ Route::post('equipos/{team}/users', [TeamController::class, 'addUser'])->name('t
 Route::post('equipos/{team}/users/{user}/captain', [TeamController::class, 'makeCaptain'])->name('teams.makeCaptain');
 Route::delete('equipos/{team}/users/{user}', [TeamController::class, 'removeUser'])->name('teams.users.remove');
 
+
+//------------LOGIN TEMPORAL
+// Login
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+
+// Logout
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 

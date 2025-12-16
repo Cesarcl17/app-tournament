@@ -21,6 +21,28 @@
 
     <hr>
 
+    @if(Auth::check())
+        <div style="background:#f4f4f4;padding:10px;margin-bottom:15px;">
+            Usuario: <strong>{{ Auth::user()->name }}</strong>
+            — Rol global: <strong>{{ Auth::user()->role }}</strong>
+
+            <form method="POST" action="{{ route('logout') }}" style="display:inline;margin-left:15px;">
+                @csrf
+                <button type="submit">Cerrar sesión</button>
+            </form>
+        </div>
+    @else
+        <div style="background:#fdecea;padding:10px;margin-bottom:15px;">
+            No hay ningún usuario logueado
+            <a href="{{ route('login') }}">Login</a>
+        </div>
+    @endif
+
+
+    <hr>
+
+
+
     @yield('content')
 
 </body>
