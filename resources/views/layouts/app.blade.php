@@ -2,48 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>App Tournament</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'App Tournament')</title>
+    @include('partials.styles')
 </head>
 <body>
 
-    <h1>LAYOUT APP CARGADO</h1>
-
-    <nav>
-        <a href="{{ url('/') }}">Inicio</a> |
-        <a href="{{ url('/torneos') }}">Torneos</a>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <a href="{{ url('/') }}">Inicio</a>
+            <a href="{{ route('torneos.index') }}">Torneos</a>
+        </div>
+        <div class="navbar-right">
+            @if(Auth::check())
+                <a href="{{ route('profile.edit') }}" class="user-info">
+                    <strong>{{ Auth::user()->name }}</strong>
+                    <span class="badge badge-primary">{{ Auth::user()->role }}</span>
+                </a>
+                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary btn-sm">Cerrar sesión</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Iniciar sesión</a>
+                <a href="{{ route('register') }}" class="btn btn-success btn-sm">Registrarse</a>
+            @endif
+        </div>
     </nav>
-    @if (session('success'))
-        <div style="background: #d4edda; color: #155724; padding: 10px; margin-bottom: 15px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
+    @include('partials.alerts')
 
-    <hr>
-
-    @if(Auth::check())
-        <div style="background:#f4f4f4;padding:10px;margin-bottom:15px;">
-            Usuario: <strong>{{ Auth::user()->name }}</strong>
-            — Rol global: <strong>{{ Auth::user()->role }}</strong>
-
-            <form method="POST" action="{{ route('logout') }}" style="display:inline;margin-left:15px;">
-                @csrf
-                <button type="submit">Cerrar sesión</button>
-            </form>
-        </div>
-    @else
-        <div style="background:#fdecea;padding:10px;margin-bottom:15px;">
-            No hay ningún usuario logueado
-            <a href="{{ route('login') }}">Login</a>
-        </div>
-    @endif
-
-
-    <hr>
-
-
-
-    @yield('content')
+    <main>
+        @yield('content')
+    </main>
 
 </body>
 </html>

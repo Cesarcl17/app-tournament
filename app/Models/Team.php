@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Tournament;
 
 class Team extends Model
 {
@@ -27,5 +25,29 @@ class Team extends Model
         return $this->belongsToMany(User::class, 'team_user')
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    /**
+     * Solicitudes de unión pendientes
+     */
+    public function pendingRequests()
+    {
+        return $this->hasMany(TeamRequest::class)->where('status', 'pending');
+    }
+
+    /**
+     * Todas las solicitudes de unión
+     */
+    public function requests()
+    {
+        return $this->hasMany(TeamRequest::class);
+    }
+
+    /**
+     * Obtener los capitanes del equipo
+     */
+    public function captains()
+    {
+        return $this->users()->wherePivot('role', 'captain');
     }
 }
