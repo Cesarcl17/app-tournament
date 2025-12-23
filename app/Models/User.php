@@ -11,6 +11,11 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    /**
+     * Email del super admin que no puede ser eliminado
+     */
+    protected const PROTECTED_ADMIN_EMAIL = 'admin@admin.com';
+
     protected $fillable = [
         'name',
         'email',
@@ -29,6 +34,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Boot del modelo - proteger admin de eliminación
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Prevenir eliminación del super admin
+        static::deleting(function (User $user) {
+            if ($user->email === self::PROTECTED_ADMIN_EMAIL) {
+                throw new \Exception('El usuario administrador principal no puede ser eliminado.');
+            }
+        });
+
+        // Prevenir cambio de rol o email del super admin
+        static::updating(function (User $user) {
+            if ($user->getOriginal('email') === self::PROTECTED_ADMIN_EMAIL) {
+                if ($user->isDirty('email') || $user->isDirty('role')) {
+                    throw new \Exception('No se puede modificar el email ni el rol del administrador principal.');
+                }
+            }
+        });
+    }
+
+    /**
+     * Verificar si este usuario es el admin protegido
+     */
+    public function isProtectedAdmin(): bool
+    {
+        return $this->email === self::PROTECTED_ADMIN_EMAIL;
     }
 
     public function teams()

@@ -71,6 +71,36 @@
                 <a href="{{ route('login') }}" class="btn btn-primary">Inicia sesión para inscribirte</a>
             @endauth
         </div>
+
+        {{-- Sección del Bracket --}}
+        <div class="bracket-actions mt-2">
+            @if($tournament->hasBracket())
+                <a href="{{ route('torneos.bracket', $tournament) }}" class="btn btn-success">
+                    🏆 Ver Bracket
+                </a>
+                @if($tournament->getChampion())
+                    <span class="badge badge-success">Campeón: {{ $tournament->getChampion()->name }}</span>
+                @endif
+            @else
+                @auth
+                    @if(auth()->user()->canManageTournaments())
+                        @if($tournament->canGenerateBracket())
+                            <form action="{{ route('torneos.generateBracket', $tournament) }}" method="POST" style="display: inline;">
+                                @csrf
+                                <button type="submit" class="btn btn-success" onclick="return confirm('¿Generar el bracket con {{ $tournament->teams->count() }} equipos? Los emparejamientos serán aleatorios.')">
+                                    🎲 Generar Bracket
+                                </button>
+                            </form>
+                        @elseif($tournament->teams->count() < \App\Models\Tournament::MIN_TEAMS_FOR_BRACKET)
+                            <span class="badge badge-warning">
+                                Se necesitan mínimo {{ \App\Models\Tournament::MIN_TEAMS_FOR_BRACKET }} equipos para generar el bracket 
+                                (actual: {{ $tournament->teams->count() }})
+                            </span>
+                        @endif
+                    @endif
+                @endauth
+            @endif
+        </div>
     </div>
 
     <div class="page-header">

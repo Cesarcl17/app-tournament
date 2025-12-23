@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TournamentController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\AuthController;
@@ -22,6 +23,14 @@ Route::get('/equipos/{team}', [TeamController::class, 'show'])->name('teams.show
 // ============================================
 Route::middleware('auth')->group(function () {
 
+    // --- Notificaciones ---
+    Route::get('/notificaciones', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notificaciones/{id}', [NotificationController::class, 'show'])->name('notifications.show');
+    Route::post('/notificaciones/{id}/leer', [NotificationController::class, 'markAsRead'])->name('notifications.markRead');
+    Route::post('/notificaciones/leer-todas', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
+    Route::delete('/notificaciones/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::delete('/notificaciones', [NotificationController::class, 'destroyRead'])->name('notifications.destroyRead');
+
     // --- Perfil de usuario ---
     Route::get('/perfil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.update');
@@ -39,6 +48,18 @@ Route::middleware('auth')->group(function () {
     // --- Gestión de Jugadores Inscritos (solo admin/organizer) ---
     Route::get('/torneos/{tournament}/jugadores', [TournamentController::class, 'players'])->name('torneos.players');
     Route::post('/torneos/{tournament}/asignar-jugador', [TournamentController::class, 'assignPlayer'])->name('torneos.assignPlayer');
+
+    // --- Bracket del Torneo ---
+    Route::get('/torneos/{tournament}/bracket', [TournamentController::class, 'showBracket'])->name('torneos.bracket');
+    Route::post('/torneos/{tournament}/bracket/generar', [TournamentController::class, 'generateBracket'])->name('torneos.generateBracket');
+    Route::delete('/torneos/{tournament}/bracket', [TournamentController::class, 'resetBracket'])->name('torneos.resetBracket');
+    Route::put('/torneos/{tournament}/partidas/{match}', [TournamentController::class, 'updateMatchResult'])->name('torneos.updateMatch');
+    Route::patch('/torneos/{tournament}/partidas/{match}/programar', [TournamentController::class, 'scheduleMatch'])->name('torneos.scheduleMatch');
+    
+    // --- Resultados por Capitanes ---
+    Route::post('/torneos/{tournament}/partidas/{match}/reportar', [TournamentController::class, 'reportMatchResult'])->name('torneos.reportMatch');
+    Route::post('/torneos/{tournament}/partidas/{match}/resolver-disputa', [TournamentController::class, 'resolveDispute'])->name('torneos.resolveDispute');
+    Route::get('/torneos/{tournament}/disputas', [TournamentController::class, 'disputes'])->name('torneos.disputes');
 
     // --- Gestión de Equipos ---
     Route::get('/torneos/{tournament}/equipos/crear', [TeamController::class, 'create'])->name('teams.create');

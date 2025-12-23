@@ -6,6 +6,9 @@ use App\Models\Tournament;
 use App\Models\Team;
 use App\Models\TeamRequest;
 use App\Models\User;
+use App\Notifications\TeamRequestApproved;
+use App\Notifications\TeamRequestReceived;
+use App\Notifications\TeamRequestRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -235,6 +238,12 @@ class TeamController extends Controller
             'message' => $request->input('message'),
         ]);
 
+        // Notificar al capitán del equipo
+        $captain = $team->users()->wherePivot('role', 'captain')->first();
+        if ($captain) {
+            $captain->notify(new TeamRequestReceived($team, $user));
+        }
+
         return back()->with('success', 'Solicitud enviada. El capitán del equipo la revisará.');
     }
 
@@ -302,6 +311,9 @@ class TeamController extends Controller
         // Si estaba inscrito como jugador suelto, cambiar a "assigned"
         $team->tournament->users()->updateExistingPivot($teamRequest->user_id, ['status' => 'assigned']);
 
+        // Notificar al jugador que fue aceptado
+        $teamRequest->user->notify(new TeamRequestApproved($team));
+
         return back()->with('success', "Jugador {$teamRequest->user->name} añadido al equipo");
     }
 
@@ -326,6 +338,9 @@ class TeamController extends Controller
 
         // Rechazar
         $teamRequest->update(['status' => 'rejected']);
+
+        // Notificar al jugador que fue rechazado
+        $teamRequest->user->notify(new TeamRequestRejected($team));
 
         return back()->with('success', 'Solicitud rechazada');
     }
