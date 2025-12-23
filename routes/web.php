@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/torneos/{tournament}/bracket', [TournamentController::class, 'resetBracket'])->name('torneos.resetBracket');
     Route::put('/torneos/{tournament}/partidas/{match}', [TournamentController::class, 'updateMatchResult'])->name('torneos.updateMatch');
     Route::patch('/torneos/{tournament}/partidas/{match}/programar', [TournamentController::class, 'scheduleMatch'])->name('torneos.scheduleMatch');
-    
+
     // --- Resultados por Capitanes ---
     Route::post('/torneos/{tournament}/partidas/{match}/reportar', [TournamentController::class, 'reportMatchResult'])->name('torneos.reportMatch');
     Route::post('/torneos/{tournament}/partidas/{match}/resolver-disputa', [TournamentController::class, 'resolveDispute'])->name('torneos.resolveDispute');

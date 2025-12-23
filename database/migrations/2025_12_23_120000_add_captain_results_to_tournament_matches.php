@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * 
+     *
      * Añade campos para que cada capitán reporte su resultado.
      * Si ambos coinciden → se valida automático
      * Si no coinciden → disputa para admin

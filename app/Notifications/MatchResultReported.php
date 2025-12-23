@@ -25,7 +25,7 @@ class MatchResultReported extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $tournament = $this->match->tournament;
-        
+
         return (new MailMessage)
             ->subject('📝 Resultado reportado - ' . $tournament->name)
             ->greeting('Hola ' . $notifiable->name . ',')
@@ -42,7 +42,7 @@ class MatchResultReported extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         $tournament = $this->match->tournament;
-        
+
         return [
             'type' => 'match_result_reported',
             'icon' => '📝',

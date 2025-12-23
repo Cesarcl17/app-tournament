@@ -52,7 +52,7 @@ class BracketTestSeeder extends Seeder
 
                 $user = User::create([
                     'name' => $isCaptain ? "Captain {$teamName}" : "Player{$userIndex}",
-                    'email' => $isCaptain 
+                    'email' => $isCaptain
                         ? strtolower(str_replace(' ', '', $teamName)) . ".captain@test.com"
                         : "player{$userIndex}@test.com",
                     'password' => Hash::make('password'),

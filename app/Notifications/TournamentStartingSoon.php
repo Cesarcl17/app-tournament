@@ -24,10 +24,10 @@ class TournamentStartingSoon extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $timeText = $this->hoursUntilStart >= 24 
+        $timeText = $this->hoursUntilStart >= 24
             ? floor($this->hoursUntilStart / 24) . ' día(s)'
             : $this->hoursUntilStart . ' hora(s)';
-        
+
         return (new MailMessage)
             ->subject("🎮 ¡{$this->tournament->name} empieza en {$timeText}!")
             ->greeting('Hola ' . $notifiable->name . ',')
@@ -42,10 +42,10 @@ class TournamentStartingSoon extends Notification implements ShouldQueue
 
     public function toDatabase(object $notifiable): array
     {
-        $timeText = $this->hoursUntilStart >= 24 
+        $timeText = $this->hoursUntilStart >= 24
             ? floor($this->hoursUntilStart / 24) . ' día(s)'
             : $this->hoursUntilStart . ' hora(s)';
-        
+
         return [
             'type' => 'tournament_starting_soon',
             'icon' => '🎮',

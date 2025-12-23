@@ -373,7 +373,7 @@ class TournamentController extends Controller
             ->unique();
 
         $users = User::whereIn('id', $userIds)->get();
-        
+
         foreach ($users as $user) {
             $user->notify(new BracketGenerated($tournament));
         }
@@ -486,7 +486,7 @@ class TournamentController extends Controller
         }
 
         $allUsers = $match->team1->users->merge($match->team2->users);
-        
+
         foreach ($allUsers as $user) {
             $user->notify(new MatchScheduled($match));
         }
@@ -540,14 +540,14 @@ class TournamentController extends Controller
             } elseif ($match->result_status === TournamentMatch::RESULT_TEAM2_REPORTED) {
                 $this->notifyOtherCaptain($match, $match->team1, $match->team2->name);
             }
-            
+
             return back()->with('success', $result['message']);
         } else {
             // Si hay disputa, notificar a los admins
             if (isset($result['disputed']) && $result['disputed']) {
                 $this->notifyAdminsOfDispute($match);
             }
-            
+
             $messageType = isset($result['disputed']) ? 'warning' : 'error';
             return back()->with($messageType, $result['message']);
         }
@@ -560,7 +560,7 @@ class TournamentController extends Controller
     {
         // Obtener el capitán del equipo
         $captain = $team->users()->wherePivot('role', 'captain')->first();
-        
+
         if ($captain) {
             $captain->notify(new MatchResultReported($match, $reporterTeamName));
         }
@@ -572,7 +572,7 @@ class TournamentController extends Controller
     private function notifyAdminsOfDispute(TournamentMatch $match): void
     {
         $admins = User::where('role', 'admin')->get();
-        
+
         foreach ($admins as $admin) {
             $admin->notify(new MatchDisputed($match));
         }
@@ -628,11 +628,11 @@ class TournamentController extends Controller
         // Obtener capitanes de ambos equipos
         $captain1 = $match->team1->users()->wherePivot('role', 'captain')->first();
         $captain2 = $match->team2->users()->wherePivot('role', 'captain')->first();
-        
+
         if ($captain1) {
             $captain1->notify(new DisputeResolved($match, $winner));
         }
-        
+
         if ($captain2) {
             $captain2->notify(new DisputeResolved($match, $winner));
         }

@@ -25,7 +25,7 @@ class MatchStartingSoon extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $tournament = $this->match->tournament;
-        
+
         return (new MailMessage)
             ->subject("⏰ ¡Tu partida empieza en {$this->minutesUntilStart} minutos!")
             ->greeting('Hola ' . $notifiable->name . ',')
@@ -40,7 +40,7 @@ class MatchStartingSoon extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         $tournament = $this->match->tournament;
-        
+
         return [
             'type' => 'match_starting_soon',
             'icon' => '⏰',

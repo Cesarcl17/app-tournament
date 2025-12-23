@@ -27,7 +27,7 @@ class DisputeResolved extends Notification implements ShouldQueue
     {
         $tournament = $this->match->tournament;
         $isWinner = $notifiable->teams->contains($this->winner->id);
-        
+
         return (new MailMessage)
             ->subject('✅ Disputa resuelta - ' . $tournament->name)
             ->greeting('Hola ' . $notifiable->name . ',')
@@ -43,7 +43,7 @@ class DisputeResolved extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         $tournament = $this->match->tournament;
-        
+
         return [
             'type' => 'dispute_resolved',
             'icon' => '✅',

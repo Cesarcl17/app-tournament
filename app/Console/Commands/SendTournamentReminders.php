@@ -29,15 +29,15 @@ class SendTournamentReminders extends Command
     public function handle()
     {
         $this->info('Enviando recordatorios de torneos...');
-        
+
         // Recordatorios de torneos: 24h y 1h antes
         $this->sendTournamentReminders();
-        
+
         // Recordatorios de partidas: 1h y 15min antes
         $this->sendMatchReminders();
-        
+
         $this->info('✅ Recordatorios enviados correctamente.');
-        
+
         return Command::SUCCESS;
     }
 
@@ -47,7 +47,7 @@ class SendTournamentReminders extends Command
     private function sendTournamentReminders(): void
     {
         $now = Carbon::now();
-        
+
         // Torneos que empiezan en ~24 horas (entre 23h50m y 24h10m para dar margen)
         $tournamentsIn24h = Tournament::whereBetween('start_date', [
             $now->copy()->addHours(23)->addMinutes(50),
@@ -57,7 +57,7 @@ class SendTournamentReminders extends Command
         foreach ($tournamentsIn24h as $tournament) {
             $this->notifyTournamentParticipants($tournament, 24);
         }
-        
+
         // Torneos que empiezan en ~1 hora (entre 50min y 70min)
         $tournamentsIn1h = Tournament::whereBetween('start_date', [
             $now->copy()->addMinutes(50),
@@ -67,7 +67,7 @@ class SendTournamentReminders extends Command
         foreach ($tournamentsIn1h as $tournament) {
             $this->notifyTournamentParticipants($tournament, 1);
         }
-        
+
         $this->info("Torneos en 24h: {$tournamentsIn24h->count()}, en 1h: {$tournamentsIn1h->count()}");
     }
 
@@ -77,7 +77,7 @@ class SendTournamentReminders extends Command
     private function sendMatchReminders(): void
     {
         $now = Carbon::now();
-        
+
         // Partidas que empiezan en ~1 hora
         $matchesIn1h = TournamentMatch::whereNotNull('scheduled_at')
             ->whereNull('winner_id')
@@ -93,7 +93,7 @@ class SendTournamentReminders extends Command
         foreach ($matchesIn1h as $match) {
             $this->notifyMatchParticipants($match, 60);
         }
-        
+
         // Partidas que empiezan en ~15 minutos
         $matchesIn15m = TournamentMatch::whereNotNull('scheduled_at')
             ->whereNull('winner_id')
@@ -109,7 +109,7 @@ class SendTournamentReminders extends Command
         foreach ($matchesIn15m as $match) {
             $this->notifyMatchParticipants($match, 15);
         }
-        
+
         $this->info("Partidas en 1h: {$matchesIn1h->count()}, en 15min: {$matchesIn15m->count()}");
     }
 
@@ -126,7 +126,7 @@ class SendTournamentReminders extends Command
             ->unique();
 
         $users = User::whereIn('id', $userIds)->get();
-        
+
         foreach ($users as $user) {
             // Evitar duplicados: verificar si ya se notificó
             $alreadyNotified = $user->notifications()
@@ -134,12 +134,12 @@ class SendTournamentReminders extends Command
                 ->whereRaw("JSON_EXTRACT(data, '$.tournament_id') = ?", [$tournament->id])
                 ->where('created_at', '>=', Carbon::now()->subHours(2))
                 ->exists();
-            
+
             if (!$alreadyNotified) {
                 $user->notify(new TournamentStartingSoon($tournament, $hours));
             }
         }
-        
+
         $this->line("  - {$tournament->name}: {$users->count()} usuarios notificados ({$hours}h)");
     }
 
@@ -152,7 +152,7 @@ class SendTournamentReminders extends Command
         $team1Users = $match->team1->users;
         $team2Users = $match->team2->users;
         $allUsers = $team1Users->merge($team2Users);
-        
+
         foreach ($allUsers as $user) {
             // Evitar duplicados
             $alreadyNotified = $user->notifications()
@@ -160,12 +160,12 @@ class SendTournamentReminders extends Command
                 ->whereRaw("JSON_EXTRACT(data, '$.match_id') = ?", [$match->id])
                 ->where('created_at', '>=', Carbon::now()->subMinutes(30))
                 ->exists();
-            
+
             if (!$alreadyNotified) {
                 $user->notify(new MatchStartingSoon($match, $minutes));
             }
         }
-        
+
         $this->line("  - Partida #{$match->id}: {$allUsers->count()} usuarios notificados ({$minutes}min)");
     }
 }

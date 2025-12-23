@@ -49,7 +49,7 @@ class TournamentsWithTeamsSeeder extends Seeder
             // 2 torneos por juego
             for ($t = 0; $t < 2; $t++) {
                 $tournamentName = $tournamentNames[$tournamentIndex % count($tournamentNames)] . ' - ' . $game->short_name;
-                
+
                 $tournament = Tournament::create([
                     'name' => $tournamentName,
                     'description' => "Torneo de {$game->name} con 8 equipos listos para competir",
@@ -63,10 +63,10 @@ class TournamentsWithTeamsSeeder extends Seeder
 
                 // 8 equipos por torneo
                 $prefixes = $teamPrefixes[$tournamentIndex % count($teamPrefixes)];
-                
+
                 foreach ($prefixes as $prefix) {
                     $teamName = "{$prefix} {$game->short_name}";
-                    
+
                     $team = Team::create([
                         'tournament_id' => $tournament->id,
                         'name' => $teamName,

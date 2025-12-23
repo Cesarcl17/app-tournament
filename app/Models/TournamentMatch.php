@@ -169,7 +169,7 @@ class TournamentMatch extends Model
     {
         if ($this->isCompleted()) return false;
         if (!$this->hasTeams()) return false;
-        
+
         return $this->isCaptainOfTeam1($user) || $this->isCaptainOfTeam2($user);
     }
 
@@ -236,26 +236,26 @@ class TournamentMatch extends Model
      */
     public function validateResults(): array
     {
-        $match1 = $this->score_team1_by_captain1 === $this->score_team1_by_captain2 
+        $match1 = $this->score_team1_by_captain1 === $this->score_team1_by_captain2
                   && $this->score_team2_by_captain1 === $this->score_team2_by_captain2;
 
         if ($match1) {
             $this->result_status = self::RESULT_MATCHED;
-            
+
             $scoreTeam1 = $this->score_team1_by_captain1;
             $scoreTeam2 = $this->score_team2_by_captain1;
-            
+
             $winnerId = $scoreTeam1 > $scoreTeam2 ? $this->team1_id : $this->team2_id;
-            
+
             $this->setWinner($winnerId, $scoreTeam1, $scoreTeam2);
-            
+
             return ['success' => true, 'message' => '¡Resultados coinciden! Partida validada automáticamente.'];
         } else {
             $this->result_status = self::RESULT_DISPUTED;
             $this->save();
-            
+
             return [
-                'success' => false, 
+                'success' => false,
                 'message' => 'Los resultados no coinciden. Un administrador revisará la disputa.',
                 'disputed' => true
             ];
@@ -273,14 +273,14 @@ class TournamentMatch extends Model
 
         $this->result_status = self::RESULT_ADMIN_RESOLVED;
         $this->setWinner($winnerId, $scoreTeam1, $scoreTeam2);
-        
+
         return true;
     }
 
     public function getNextMatch(): ?TournamentMatch
     {
         $totalRounds = $this->tournament->getTotalRounds();
-        
+
         if ($this->round >= $totalRounds) {
             return null;
         }

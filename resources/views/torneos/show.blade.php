@@ -93,7 +93,7 @@
                             </form>
                         @elseif($tournament->teams->count() < \App\Models\Tournament::MIN_TEAMS_FOR_BRACKET)
                             <span class="badge badge-warning">
-                                Se necesitan mínimo {{ \App\Models\Tournament::MIN_TEAMS_FOR_BRACKET }} equipos para generar el bracket 
+                                Se necesitan mínimo {{ \App\Models\Tournament::MIN_TEAMS_FOR_BRACKET }} equipos para generar el bracket
                                 (actual: {{ $tournament->teams->count() }})
                             </span>
                         @endif

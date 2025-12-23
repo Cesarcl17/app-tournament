@@ -39,7 +39,7 @@
                         </div>
                         <div class="notifications-list">
                             @forelse($notifications as $notification)
-                                <a href="{{ route('notifications.show', $notification->id) }}" 
+                                <a href="{{ route('notifications.show', $notification->id) }}"
                                    class="notification-item {{ $notification->read_at ? 'read' : 'unread' }}">
                                     <span class="notification-icon">{{ $notification->data['icon'] ?? '📢' }}</span>
                                     <div class="notification-content">
