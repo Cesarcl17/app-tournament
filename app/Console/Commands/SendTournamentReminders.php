@@ -83,12 +83,12 @@ class SendTournamentReminders extends Command
             ->whereNull('winner_id')
             ->whereNotNull('team1_id')
             ->whereNotNull('team2_id')
-            ->where('is_bye', false)
             ->whereBetween('scheduled_at', [
                 $now->copy()->addMinutes(55),
                 $now->copy()->addMinutes(65),
             ])
-            ->get();
+            ->get()
+            ->reject(fn($m) => $m->isBye());
 
         foreach ($matchesIn1h as $match) {
             $this->notifyMatchParticipants($match, 60);
@@ -99,12 +99,12 @@ class SendTournamentReminders extends Command
             ->whereNull('winner_id')
             ->whereNotNull('team1_id')
             ->whereNotNull('team2_id')
-            ->where('is_bye', false)
             ->whereBetween('scheduled_at', [
                 $now->copy()->addMinutes(13),
                 $now->copy()->addMinutes(17),
             ])
-            ->get();
+            ->get()
+            ->reject(fn($m) => $m->isBye());
 
         foreach ($matchesIn15m as $match) {
             $this->notifyMatchParticipants($match, 15);

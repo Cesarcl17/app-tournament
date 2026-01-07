@@ -3,8 +3,22 @@
 @section('title', $tournament->name)
 
 @section('content')
+    {{-- Banner del torneo --}}
+    @if($tournament->banner)
+        <div class="tournament-banner">
+            <img src="{{ asset('storage/' . $tournament->banner) }}" alt="{{ $tournament->name }}">
+            <div class="tournament-banner-overlay">
+                <h1>{{ $tournament->name }}</h1>
+            </div>
+        </div>
+    @endif
+
     <div class="page-header">
-        <h1>{{ $tournament->name }}</h1>
+        @if(!$tournament->banner)
+            <h1>{{ $tournament->name }}</h1>
+        @else
+            <div></div>
+        @endif
         <a href="{{ route('torneos.index') }}" class="btn btn-secondary">Volver a torneos</a>
     </div>
 
@@ -13,6 +27,7 @@
             <p>
                 <span class="badge badge-primary">{{ $tournament->game->name }}</span>
                 <span class="badge badge-success">{{ $tournament->getFormatLabel() }}</span>
+                <span class="badge badge-secondary">⏱️ Check-in: {{ $tournament->check_in_minutes ?? 15 }} min</span>
             </p>
         @endif
 
@@ -23,6 +38,45 @@
             <strong>Fecha inicio:</strong> {{ $tournament->start_date }}<br>
             <strong>Fecha fin:</strong> {{ $tournament->end_date }}
         </p>
+
+        {{-- Sección de Reglas --}}
+        @if($tournament->rules)
+            <div class="tournament-section" id="rulesSection">
+                <div class="tournament-section-header" onclick="toggleSection('rulesSection')">
+                    <h3>📋 Reglas del Torneo</h3>
+                    <span class="tournament-section-toggle">▼</span>
+                </div>
+                <div class="tournament-section-content">
+                    <div class="rules-content">{{ $tournament->rules }}</div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Sección de Premios --}}
+        @if($tournament->prizes && count($tournament->prizes) > 0)
+            <div class="tournament-section" id="prizesSection">
+                <div class="tournament-section-header" onclick="toggleSection('prizesSection')">
+                    <h3>🏆 Premios</h3>
+                    <span class="tournament-section-toggle">▼</span>
+                </div>
+                <div class="tournament-section-content">
+                    <div class="prizes-list">
+                        @foreach($tournament->getPrizesForDisplay() as $prize)
+                            <div class="prize-item">
+                                <span class="prize-medal">{{ $prize['medal'] }}</span>
+                                <div class="prize-info">
+                                    <span class="prize-position">{{ $prize['position'] }}º Puesto</span>
+                                    <span class="prize-name">{{ $prize['name'] }}</span>
+                                    @if($prize['description'])
+                                        <span class="prize-description">{{ $prize['description'] }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- Acciones según rol --}}
         <div class="actions-inline">
@@ -149,3 +203,12 @@
         </div>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+    function toggleSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.classList.toggle('collapsed');
+    }
+</script>
+@endpush

@@ -13,6 +13,7 @@ class Team extends Model
         'tournament_id',
         'name',
         'description',
+        'logo',
     ];
 
     public function tournament()
@@ -23,7 +24,7 @@ class Team extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'team_user')
-            ->withPivot('role')
+            ->withPivot('role', 'primary_role', 'secondary_role')
             ->withTimestamps();
     }
 
@@ -49,5 +50,37 @@ class Team extends Model
     public function captains()
     {
         return $this->users()->wherePivot('role', 'captain');
+    }
+
+    /**
+     * Estadísticas del equipo
+     */
+    public function statistics()
+    {
+        return $this->hasOne(TeamStatistic::class);
+    }
+
+    /**
+     * Invitaciones del equipo
+     */
+    public function invitations()
+    {
+        return $this->hasMany(TeamInvitation::class);
+    }
+
+    /**
+     * Obtener estadísticas o crear si no existen
+     */
+    public function getOrCreateStatistics(): TeamStatistic
+    {
+        return $this->statistics ?? TeamStatistic::create([
+            'team_id' => $this->id,
+            'wins' => 0,
+            'losses' => 0,
+            'matches_played' => 0,
+            'tournaments_won' => 0,
+            'current_win_streak' => 0,
+            'best_win_streak' => 0,
+        ]);
     }
 }

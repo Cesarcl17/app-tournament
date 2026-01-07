@@ -11,9 +11,11 @@ use App\Notifications\DisputeResolved;
 use App\Notifications\MatchDisputed;
 use App\Notifications\MatchResultReported;
 use App\Notifications\MatchScheduled;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class TournamentController extends Controller
 {
@@ -21,19 +23,54 @@ class TournamentController extends Controller
     {
         $query = Tournament::with('game');
 
+        // Búsqueda por nombre
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
         // Filtrar por juego si viene el parámetro
-        if ($request->has('game') && $request->game) {
+        if ($request->filled('game')) {
             $game = Game::where('slug', $request->game)->first();
             if ($game) {
                 $query->where('game_id', $game->id);
             }
         }
 
-        $tournaments = $query->orderBy('start_date', 'desc')->get();
-        $games = Game::active()->orderBy('name')->get();
-        $currentGame = $request->game;
+        // Filtrar por formato (1v1, 3v3, 5v5)
+        if ($request->filled('format')) {
+            $query->where('team_size', $request->format);
+        }
 
-        return view('torneos.index', compact('tournaments', 'games', 'currentGame'));
+        // Filtrar por estado
+        if ($request->filled('status')) {
+            $today = Carbon::now()->toDateString();
+            switch ($request->status) {
+                case 'upcoming':
+                    $query->where('start_date', '>', $today);
+                    break;
+                case 'active':
+                    $query->where('start_date', '<=', $today)
+                          ->where('end_date', '>=', $today);
+                    break;
+                case 'finished':
+                    $query->where('end_date', '<', $today);
+                    break;
+            }
+        }
+
+        $tournaments = $query->orderBy('start_date', 'desc')->paginate(12)->withQueryString();
+        $games = Game::active()->orderBy('name')->get();
+        
+        // Preservar filtros actuales
+        $filters = [
+            'search' => $request->search,
+            'game' => $request->game,
+            'format' => $request->format,
+            'status' => $request->status,
+        ];
+
+        return view('torneos.index', compact('tournaments', 'games', 'filters'));
     }
 
     public function create(Request $request)
@@ -68,16 +105,32 @@ class TournamentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'check_in_minutes' => 'required|integer|min:15|max:120',
+            'prizes' => 'nullable|array',
+            'prizes.*.name' => 'required_with:prizes|string|max:100',
+            'prizes.*.description' => 'nullable|string|max:255',
             'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'game_id' => 'required|exists:games,id',
             'team_size' => 'required|in:1,3,5',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB
         ], [
             'start_date.after_or_equal' => 'La fecha de inicio debe ser hoy o una fecha futura.',
             'team_size.in' => 'El formato debe ser 1v1, 3v3 o 5v5.',
+            'check_in_minutes.min' => 'El tiempo de check-in debe ser mínimo 15 minutos.',
+            'banner.max' => 'El banner no puede superar 10MB.',
         ]);
 
-        Tournament::create($request->all());
+        $data = $request->except(['prizes', 'banner']);
+        $data['prizes'] = $request->input('prizes', []);
+
+        // Manejar subida de banner
+        if ($request->hasFile('banner')) {
+            $data['banner'] = $request->file('banner')->store('tournaments', 'public');
+        }
+
+        Tournament::create($data);
 
         return redirect()
             ->route('torneos.index')
@@ -116,15 +169,35 @@ class TournamentController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'rules' => 'nullable|string',
+            'check_in_minutes' => 'required|integer|min:15|max:120',
+            'prizes' => 'nullable|array',
+            'prizes.*.name' => 'required_with:prizes|string|max:100',
+            'prizes.*.description' => 'nullable|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'game_id' => 'required|exists:games,id',
             'team_size' => 'required|in:1,3,5',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240', // 10MB
         ], [
             'team_size.in' => 'El formato debe ser 1v1, 3v3 o 5v5.',
+            'check_in_minutes.min' => 'El tiempo de check-in debe ser mínimo 15 minutos.',
+            'banner.max' => 'El banner no puede superar 10MB.',
         ]);
 
-        $tournament->update($request->all());
+        $data = $request->except(['prizes', 'banner']);
+        $data['prizes'] = $request->input('prizes', []);
+
+        // Manejar subida de banner
+        if ($request->hasFile('banner')) {
+            // Eliminar banner anterior si existe
+            if ($tournament->banner && Storage::disk('public')->exists($tournament->banner)) {
+                Storage::disk('public')->delete($tournament->banner);
+            }
+            $data['banner'] = $request->file('banner')->store('tournaments', 'public');
+        }
+
+        $tournament->update($data);
 
         return redirect()
             ->route('torneos.show', $tournament)
@@ -140,11 +213,37 @@ class TournamentController extends Controller
             abort(403, 'No tienes permiso para eliminar torneos');
         }
 
+        // Eliminar banner si existe
+        if ($tournament->banner && Storage::disk('public')->exists($tournament->banner)) {
+            Storage::disk('public')->delete($tournament->banner);
+        }
+
         $tournament->delete();
 
         return redirect()
             ->route('torneos.index')
             ->with('success', 'Torneo eliminado correctamente');
+    }
+
+    /**
+     * Eliminar banner del torneo
+     */
+    public function deleteBanner(Tournament $tournament)
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (!$user || !$user->canManageTournaments()) {
+            abort(403, 'No tienes permiso para editar torneos');
+        }
+
+        if ($tournament->banner && Storage::disk('public')->exists($tournament->banner)) {
+            Storage::disk('public')->delete($tournament->banner);
+        }
+
+        $tournament->update(['banner' => null]);
+
+        return back()->with('success', 'Banner eliminado correctamente');
     }
 
     /**
@@ -658,5 +757,72 @@ class TournamentController extends Controller
             ->get();
 
         return view('torneos.disputes', compact('tournament', 'disputes'));
+    }
+
+    /**
+     * Check-in de un equipo en una partida
+     */
+    public function checkIn(Tournament $tournament, TournamentMatch $match)
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403, 'Debes iniciar sesión para hacer check-in');
+        }
+
+        // Verificar que la partida pertenece al torneo
+        if ($match->tournament_id !== $tournament->id) {
+            abort(404, 'Partida no encontrada en este torneo');
+        }
+
+        // Verificar que el torneo tiene check-in habilitado
+        if (!$tournament->check_in_minutes || $tournament->check_in_minutes < 15) {
+            return back()->with('error', 'El check-in no está habilitado en este torneo');
+        }
+
+        // Verificar que ambos equipos existen
+        if (!$match->team1 || !$match->team2) {
+            return back()->with('error', 'Esta partida aún no tiene equipos asignados');
+        }
+
+        // Determinar si el usuario es capitán de alguno de los equipos
+        $team = null;
+        
+        $isTeam1Captain = $match->team1->users()
+            ->wherePivot('role', 'captain')
+            ->where('users.id', $user->id)
+            ->exists();
+            
+        $isTeam2Captain = $match->team2->users()
+            ->wherePivot('role', 'captain')
+            ->where('users.id', $user->id)
+            ->exists();
+
+        if ($isTeam1Captain) {
+            $team = $match->team1;
+        } elseif ($isTeam2Captain) {
+            $team = $match->team2;
+        }
+
+        if (!$team) {
+            return back()->with('error', 'Solo los capitanes de los equipos pueden hacer check-in');
+        }
+
+        // Intentar hacer check-in
+        $result = $match->checkIn($team);
+
+        if ($result === false) {
+            // Determinar razón del fallo
+            if ($match->isCheckInExpired()) {
+                return back()->with('error', 'El período de check-in ha expirado');
+            } elseif (!$match->isCheckInOpen()) {
+                return back()->with('error', 'El check-in aún no está disponible');
+            } else {
+                return back()->with('error', 'Tu equipo ya ha hecho check-in');
+            }
+        }
+
+        return back()->with('success', '¡Check-in realizado correctamente para ' . $team->name . '!');
     }
 }

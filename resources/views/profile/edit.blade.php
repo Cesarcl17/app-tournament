@@ -155,4 +155,183 @@
             </div>
         @endif
     </div>
+
+    {{-- Sección de Estadísticas --}}
+    <div class="card mt-2">
+        <div class="card-header">📊 Mis Estadísticas</div>
+
+        @php
+            $stats = $user->statistics;
+        @endphp
+
+        @if($stats)
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ $stats->matches_played }}</div>
+                    <div class="stat-label">Partidas Jugadas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-success">{{ $stats->wins }}</div>
+                    <div class="stat-label">Victorias</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-danger">{{ $stats->losses }}</div>
+                    <div class="stat-label">Derrotas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ $stats->win_rate }}%</div>
+                    <div class="stat-label">Win Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ $stats->tournaments_played }}</div>
+                    <div class="stat-label">Torneos Jugados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-warning">🏆 {{ $stats->tournaments_won }}</div>
+                    <div class="stat-label">Torneos Ganados</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">🔥 {{ $stats->current_win_streak }}</div>
+                    <div class="stat-label">Racha Actual</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">⭐ {{ $stats->best_win_streak }}</div>
+                    <div class="stat-label">Mejor Racha</div>
+                </div>
+            </div>
+        @else
+            <p class="text-muted p-1">Aún no tienes estadísticas. ¡Participa en un torneo para empezar!</p>
+        @endif
+    </div>
+
+    {{-- Sección de Trofeos --}}
+    <div class="card mt-2">
+        <div class="card-header">🏆 Mis Trofeos</div>
+
+        @if($user->trophies->isEmpty())
+            <p class="text-muted p-1">Aún no tienes trofeos. ¡Gana un torneo para obtener tu primer trofeo!</p>
+        @else
+            <div class="trophies-grid">
+                @foreach($user->trophies as $trophy)
+                    <div class="trophy-item">
+                        <div class="trophy-icon">
+                            @if($trophy->game && $trophy->game->logo)
+                                <img src="{{ asset('images/games/' . $trophy->game->logo) }}" 
+                                     alt="{{ $trophy->game->name }}" 
+                                     class="trophy-game-logo">
+                            @else
+                                🏆
+                            @endif
+                        </div>
+                        <div class="trophy-info">
+                            <div class="trophy-name">{{ $trophy->name }}</div>
+                            <div class="trophy-description">{{ $trophy->description }}</div>
+                            <div class="trophy-date">
+                                <small class="text-muted">
+                                    Obtenido: {{ \Carbon\Carbon::parse($trophy->pivot->earned_at)->format('d/m/Y') }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
 @endsection
+
+@push('styles')
+<style>
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--bg-secondary, #f8f9fa);
+        border-radius: 8px;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: var(--text-primary, #333);
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted, #666);
+        margin-top: 0.25rem;
+    }
+
+    .text-success { color: #28a745; }
+    .text-danger { color: #dc3545; }
+    .text-warning { color: #ffc107; }
+
+    .trophies-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .trophy-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        border: 2px solid #ffc107;
+        border-radius: 12px;
+        transition: transform 0.2s;
+    }
+
+    .trophy-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .trophy-icon {
+        font-size: 2.5rem;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .trophy-game-logo {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
+    .trophy-info {
+        flex: 1;
+    }
+
+    .trophy-name {
+        font-weight: bold;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .trophy-description {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.25rem;
+    }
+
+    .trophy-date {
+        margin-top: 0.5rem;
+    }
+
+    .mt-2 {
+        margin-top: 1.5rem;
+    }
+
+    .p-1 {
+        padding: 1rem;
+    }
+</style>
+@endpush

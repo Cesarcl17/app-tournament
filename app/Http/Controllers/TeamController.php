@@ -11,6 +11,7 @@ use App\Notifications\TeamRequestReceived;
 use App\Notifications\TeamRequestRejected;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TeamController extends Controller
 {
@@ -49,12 +50,20 @@ class TeamController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
         ]);
 
-        $team = $tournament->teams()->create([
+        $data = [
             'name' => $request->name,
             'description' => $request->description,
-        ]);
+        ];
+
+        // Manejar subida de logo
+        if ($request->hasFile('logo')) {
+            $data['logo'] = $request->file('logo')->store('teams', 'public');
+        }
+
+        $team = $tournament->teams()->create($data);
 
         // El creador pasa a ser capitán
         $team->users()->attach(Auth::id(), ['role' => 'captain']);
@@ -108,13 +117,43 @@ class TeamController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
         ]);
 
-        $team->update($request->only('name', 'description'));
+        $data = $request->only('name', 'description');
+
+        // Manejar subida de logo
+        if ($request->hasFile('logo')) {
+            // Eliminar logo anterior si existe
+            if ($team->logo && Storage::disk('public')->exists($team->logo)) {
+                Storage::disk('public')->delete($team->logo);
+            }
+            $data['logo'] = $request->file('logo')->store('teams', 'public');
+        }
+
+        $team->update($data);
 
         return redirect()
             ->route('teams.show', $team)
             ->with('success', 'Equipo actualizado correctamente');
+    }
+
+    /**
+     * Eliminar logo del equipo
+     */
+    public function deleteLogo(Team $team)
+    {
+        if (!$this->isCaptain($team)) {
+            abort(403);
+        }
+
+        if ($team->logo && Storage::disk('public')->exists($team->logo)) {
+            Storage::disk('public')->delete($team->logo);
+        }
+
+        $team->update(['logo' => null]);
+
+        return back()->with('success', 'Logo eliminado correctamente');
     }
 
     /* ==========================
@@ -343,5 +382,68 @@ class TeamController extends Controller
         $teamRequest->user->notify(new TeamRequestRejected($team));
 
         return back()->with('success', 'Solicitud rechazada');
+    }
+
+    /* ==========================
+     *  ROLES DE POSICIÓN
+     * ========================== */
+
+    /**
+     * Actualizar el rol/posición de un jugador en el equipo
+     */
+    public function updatePlayerRoles(Request $request, Team $team)
+    {
+        if (!Auth::check()) {
+            abort(403);
+        }
+
+        // Determinar qué usuario se está actualizando
+        $targetUserId = $request->input('user_id', Auth::id());
+        $currentUserId = Auth::id();
+
+        // Verificar permisos: puede editar si es el propio jugador O es capitán/admin
+        $isCaptainOrAdmin = $this->isCaptain($team);
+        $isSelf = $targetUserId == $currentUserId;
+
+        if (!$isSelf && !$isCaptainOrAdmin) {
+            abort(403, 'No tienes permisos para editar los roles de este jugador');
+        }
+
+        // Verificar que el jugador objetivo pertenece al equipo
+        $membership = $team->users()->where('users.id', $targetUserId)->first();
+        if (!$membership) {
+            abort(403, 'El jugador no pertenece a este equipo');
+        }
+
+        // Obtener posiciones válidas del juego
+        $game = $team->tournament->game;
+        $validPositions = $game->positions ?? [];
+
+        $request->validate([
+            'primary_role' => ['nullable', 'string', function ($attribute, $value, $fail) use ($validPositions) {
+                if ($value && !in_array($value, $validPositions)) {
+                    $fail('La posición seleccionada no es válida para este juego.');
+                }
+            }],
+            'secondary_role' => ['nullable', 'string', function ($attribute, $value, $fail) use ($validPositions) {
+                if ($value && !in_array($value, $validPositions)) {
+                    $fail('La posición seleccionada no es válida para este juego.');
+                }
+            }],
+        ]);
+
+        // Verificar que no sean iguales
+        if ($request->primary_role && $request->primary_role === $request->secondary_role) {
+            return back()->with('error', 'El rol principal y secundario no pueden ser iguales');
+        }
+
+        // Actualizar roles en la tabla pivot
+        $team->users()->updateExistingPivot($targetUserId, [
+            'primary_role' => $request->primary_role,
+            'secondary_role' => $request->secondary_role,
+        ]);
+
+        $playerName = $isSelf ? 'Tus roles han sido actualizados' : 'Roles del jugador actualizados';
+        return back()->with('success', $playerName);
     }
 }

@@ -27,7 +27,7 @@
             <tbody>
                 @foreach ($pendingRequests as $request)
                     <tr>
-                        <td>{{ $request->user->name }}</td>
+                        <td><a href="{{ route('users.show', $request->user) }}">{{ $request->user->name }}</a></td>
                         <td>{{ $request->user->email }}</td>
                         <td>{{ $request->message ?? '-' }}</td>
                         <td>{{ $request->created_at->format('d/m/Y H:i') }}</td>
@@ -72,7 +72,7 @@
             <tbody>
                 @foreach ($processedRequests as $request)
                     <tr>
-                        <td>{{ $request->user->name }}</td>
+                        <td><a href="{{ route('users.show', $request->user) }}">{{ $request->user->name }}</a></td>
                         <td>
                             @if ($request->status === 'approved')
                                 <span class="badge badge-success">Aprobada</span>

@@ -1,7 +1,11 @@
+{{-- 
+    Esta vista no se usa - la ruta '/' usa HomeController que renderiza inicio.blade.php
+    Se mantiene por compatibilidad pero redirige al inicio
+--}}
 @extends('layouts.app')
 
 @section('title', 'Inicio')
 
 @section('content')
-    <p>Esta es la página de inicio de la aplicación.</p>
+    <script>window.location.href = "{{ route('home') }}";</script>
 @endsection

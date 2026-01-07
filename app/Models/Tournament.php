@@ -14,6 +14,10 @@ class Tournament extends Model
     protected $fillable = [
         'name',
         'description',
+        'banner',
+        'rules',
+        'prizes',
+        'check_in_minutes',
         'start_date',
         'end_date',
         'game_id',
@@ -22,6 +26,8 @@ class Tournament extends Model
 
     protected $casts = [
         'team_size' => 'integer',
+        'check_in_minutes' => 'integer',
+        'prizes' => 'array',
     ];
 
     /**
@@ -119,7 +125,7 @@ class Tournament extends Model
     public function getMatchesByRound(): array
     {
         $matches = $this->matches()
-            ->with(['team1', 'team2', 'winner'])
+            ->with(['team1', 'team2', 'winner', 'comments'])
             ->orderBy('round')
             ->orderBy('position')
             ->get();
@@ -164,5 +170,38 @@ class Tournament extends Model
     public function isFinished(): bool
     {
         return $this->getChampion() !== null;
+    }
+
+    /**
+     * Obtener los premios con formato para mostrar
+     */
+    public function getPrizesForDisplay(): array
+    {
+        $prizes = $this->prizes ?? [];
+        $medals = ['🥇', '🥈', '🥉'];
+        $result = [];
+
+        foreach ($prizes as $index => $prize) {
+            $result[] = [
+                'position' => $index + 1,
+                'medal' => $medals[$index] ?? '🏅',
+                'name' => $prize['name'] ?? 'Posición ' . ($index + 1),
+                'description' => $prize['description'] ?? '',
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Obtener premios por defecto (Oro, Plata, Bronce)
+     */
+    public static function getDefaultPrizes(): array
+    {
+        return [
+            ['name' => 'Oro', 'description' => 'Trofeo de campeón'],
+            ['name' => 'Plata', 'description' => 'Trofeo de subcampeón'],
+            ['name' => 'Bronce', 'description' => 'Trofeo de tercer puesto'],
+        ];
     }
 }

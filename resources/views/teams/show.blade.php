@@ -4,8 +4,20 @@
 
 @section('content')
     <div class="page-header">
-        <h1>{{ $team->name }}</h1>
-        <a href="{{ route('torneos.show', $team->tournament_id) }}" class="btn btn-secondary">Volver al torneo</a>
+        <div class="team-header-info">
+            @if($team->logo)
+                <img src="{{ asset('storage/' . $team->logo) }}" alt="{{ $team->name }}" class="team-header-logo">
+            @else
+                <div class="team-header-placeholder">
+                    {{ strtoupper(substr($team->name, 0, 2)) }}
+                </div>
+            @endif
+            <h1>{{ $team->name }}</h1>
+        </div>
+        <div class="actions-inline">
+            <a href="{{ route('head-to-head.rivals', $team) }}" class="btn btn-primary">⚔️ Ver rivales</a>
+            <a href="{{ route('torneos.show', $team->tournament_id) }}" class="btn btn-secondary">Volver al torneo</a>
+        </div>
     </div>
 
     <div class="card">
@@ -66,9 +78,12 @@
         @endauth
     </div>
 
-    {{-- Botón ver solicitudes (solo capitán/admin) --}}
+    {{-- Botones de gestión (solo capitán/admin) --}}
     @if ($isCaptain)
         <div class="actions mt-1">
+            <a href="{{ route('invitations.create', $team) }}" class="btn btn-success">
+                ✉️ Invitar jugadores
+            </a>
             <a href="{{ route('teams.requests', $team) }}" class="btn btn-primary">
                 Ver solicitudes pendientes ({{ $team->pendingRequests->count() }})
             </a>
@@ -82,6 +97,11 @@
     @if ($team->users->isEmpty())
         <p class="text-muted">Este equipo no tiene jugadores.</p>
     @else
+        @php
+            $gamePositions = $team->tournament->game->positions ?? [];
+            $currentUserId = auth()->id();
+        @endphp
+        
         <div class="table-responsive">
         <table class="table">
             <thead>
@@ -89,6 +109,9 @@
                     <th>Nombre</th>
                     <th>Email</th>
                     <th>Rol</th>
+                    @if(count($gamePositions) > 0)
+                        <th>Posición</th>
+                    @endif
                     @if ($isCaptain)
                         <th>Acciones</th>
                     @endif
@@ -97,7 +120,7 @@
             <tbody>
                 @foreach ($team->users as $member)
                     <tr>
-                        <td>{{ $member->name }}</td>
+                        <td><a href="{{ route('users.show', $member) }}">{{ $member->name }}</a></td>
                         <td>{{ $member->email }}</td>
                         <td>
                             @if ($member->pivot->role === 'captain')
@@ -106,6 +129,73 @@
                                 <span class="badge badge-success">Jugador</span>
                             @endif
                         </td>
+                        @if(count($gamePositions) > 0)
+                            <td>
+                                @if($currentUserId === $member->id)
+                                    {{-- El jugador puede editar sus propios roles --}}
+                                    <form action="{{ route('teams.updateRoles', $team) }}" method="POST" class="role-selector-form">
+                                        @csrf
+                                        <div class="role-selectors">
+                                            <select name="primary_role" class="form-control form-control-sm" title="Rol principal">
+                                                <option value="">Principal...</option>
+                                                @foreach($gamePositions as $position)
+                                                    <option value="{{ $position }}" {{ $member->pivot->primary_role === $position ? 'selected' : '' }}>
+                                                        {{ $position }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <select name="secondary_role" class="form-control form-control-sm" title="Rol secundario">
+                                                <option value="">Secundario...</option>
+                                                @foreach($gamePositions as $position)
+                                                    <option value="{{ $position }}" {{ $member->pivot->secondary_role === $position ? 'selected' : '' }}>
+                                                        {{ $position }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-primary" title="Guardar">✓</button>
+                                        </div>
+                                    </form>
+                                @elseif($isCaptain)
+                                    {{-- Capitán/Admin puede editar roles de otros --}}
+                                    <form action="{{ route('teams.updateRoles', $team) }}" method="POST" class="role-selector-form">
+                                        @csrf
+                                        <input type="hidden" name="user_id" value="{{ $member->id }}">
+                                        <div class="role-selectors">
+                                            <select name="primary_role" class="form-control form-control-sm" title="Rol principal">
+                                                <option value="">Principal...</option>
+                                                @foreach($gamePositions as $position)
+                                                    <option value="{{ $position }}" {{ $member->pivot->primary_role === $position ? 'selected' : '' }}>
+                                                        {{ $position }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <select name="secondary_role" class="form-control form-control-sm" title="Rol secundario">
+                                                <option value="">Secundario...</option>
+                                                @foreach($gamePositions as $position)
+                                                    <option value="{{ $position }}" {{ $member->pivot->secondary_role === $position ? 'selected' : '' }}>
+                                                        {{ $position }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-primary" title="Guardar">✓</button>
+                                        </div>
+                                    </form>
+                                @else
+                                    {{-- Mostrar roles del jugador (solo lectura) --}}
+                                    <div class="player-roles">
+                                        @if($member->pivot->primary_role)
+                                            <span class="badge badge-info" title="Rol principal">{{ $member->pivot->primary_role }}</span>
+                                        @endif
+                                        @if($member->pivot->secondary_role)
+                                            <span class="badge badge-secondary" title="Rol secundario">{{ $member->pivot->secondary_role }}</span>
+                                        @endif
+                                        @if(!$member->pivot->primary_role && !$member->pivot->secondary_role)
+                                            <span class="text-muted">Sin asignar</span>
+                                        @endif
+                                    </div>
+                                @endif
+                            </td>
+                        @endif
                         @if ($isCaptain)
                             <td class="actions-inline">
                                 @if ($member->pivot->role !== 'captain')

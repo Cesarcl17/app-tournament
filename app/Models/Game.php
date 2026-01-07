@@ -16,13 +16,15 @@ class Game extends Model
         'short_name',
         'description',
         'logo',
-        'team_size',
+        'team_sizes',
+        'positions',
         'active',
     ];
 
     protected $casts = [
         'active' => 'boolean',
-        'team_size' => 'integer',
+        'team_sizes' => 'array',
+        'positions' => 'array',
     ];
 
     /**

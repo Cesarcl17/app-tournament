@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,10 @@ class TournamentMatch extends Model
         'score_team2',
         'status',
         'scheduled_at',
+        'team1_checked_in',
+        'team2_checked_in',
+        'team1_checked_in_at',
+        'team2_checked_in_at',
         'score_team1_by_captain1',
         'score_team2_by_captain1',
         'reported_by_captain1',
@@ -44,6 +49,10 @@ class TournamentMatch extends Model
         'scheduled_at' => 'datetime',
         'reported_at_captain1' => 'datetime',
         'reported_at_captain2' => 'datetime',
+        'team1_checked_in' => 'boolean',
+        'team2_checked_in' => 'boolean',
+        'team1_checked_in_at' => 'datetime',
+        'team2_checked_in_at' => 'datetime',
     ];
 
     // Estados de partida
@@ -77,6 +86,14 @@ class TournamentMatch extends Model
     public function winner(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'winner_id');
+    }
+
+    /**
+     * Comentarios de la partida
+     */
+    public function comments()
+    {
+        return $this->hasMany(MatchComment::class, 'tournament_match_id');
     }
 
     public function captainReporter1(): BelongsTo
@@ -356,5 +373,84 @@ class TournamentMatch extends Model
             self::RESULT_ADMIN_RESOLVED => 'Resuelto por admin',
             default => 'Desconocido',
         };
+    }
+
+    /**
+     * Verificar si el check-in está disponible para esta partida
+     */
+    public function isCheckInOpen(): bool
+    {
+        if (!$this->scheduled_at || !$this->hasTeams() || $this->isBye() || $this->isCompleted()) {
+            return false;
+        }
+
+        $checkInMinutes = $this->tournament->check_in_minutes ?? 15;
+        $deadline = $this->scheduled_at;
+        $openTime = $this->scheduled_at->copy()->subMinutes($checkInMinutes * 2);
+
+        return Carbon::now()->between($openTime, $deadline);
+    }
+
+    /**
+     * Verificar si el check-in ha expirado
+     */
+    public function isCheckInExpired(): bool
+    {
+        if (!$this->scheduled_at) {
+            return false;
+        }
+
+        return Carbon::now()->isAfter($this->scheduled_at);
+    }
+
+    /**
+     * Realizar check-in de un equipo
+     */
+    public function checkIn(Team $team): bool
+    {
+        if (!$this->isCheckInOpen()) {
+            return false;
+        }
+
+        if ($team->id === $this->team1_id) {
+            $this->team1_checked_in = true;
+            $this->team1_checked_in_at = now();
+            $this->save();
+            return true;
+        }
+
+        if ($team->id === $this->team2_id) {
+            $this->team2_checked_in = true;
+            $this->team2_checked_in_at = now();
+            $this->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Verificar si ambos equipos han hecho check-in
+     */
+    public function bothTeamsCheckedIn(): bool
+    {
+        return $this->team1_checked_in && $this->team2_checked_in;
+    }
+
+    /**
+     * Obtener estado del check-in para mostrar
+     */
+    public function getCheckInStatus(): array
+    {
+        $checkInMinutes = $this->tournament->check_in_minutes ?? 15;
+
+        return [
+            'team1' => $this->team1_checked_in,
+            'team2' => $this->team2_checked_in,
+            'is_open' => $this->isCheckInOpen(),
+            'is_expired' => $this->isCheckInExpired(),
+            'deadline' => $this->scheduled_at,
+            'opens_at' => $this->scheduled_at ? $this->scheduled_at->copy()->subMinutes($checkInMinutes * 2) : null,
+        ];
     }
 }

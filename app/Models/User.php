@@ -163,4 +163,39 @@ class User extends Authenticatable
             ->where('tournament_id', $tournament->id)
             ->exists();
     }
+
+    /**
+     * Estadísticas del usuario
+     */
+    public function statistics()
+    {
+        return $this->hasOne(UserStatistic::class);
+    }
+
+    /**
+     * Trofeos ganados por el usuario
+     */
+    public function trophies()
+    {
+        return $this->belongsToMany(Trophy::class, 'trophy_user')
+            ->withPivot(['tournament_id', 'team_id', 'earned_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Obtener estadísticas o crear si no existen
+     */
+    public function getOrCreateStatistics(): UserStatistic
+    {
+        return $this->statistics ?? UserStatistic::create([
+            'user_id' => $this->id,
+            'wins' => 0,
+            'losses' => 0,
+            'matches_played' => 0,
+            'tournaments_played' => 0,
+            'tournaments_won' => 0,
+            'current_win_streak' => 0,
+            'best_win_streak' => 0,
+        ]);
+    }
 }
