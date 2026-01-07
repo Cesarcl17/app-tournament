@@ -6,22 +6,22 @@
     <meta name="description" content="@yield('meta_description', 'The Tournament Series - Plataforma de torneos de eSports. Crea equipos, compite en torneos y demuestra tu habilidad.')">
     <meta name="keywords" content="esports, torneos, gaming, competitivo, equipos, league of legends, valorant, cs2, the tournament series, tts">
     <meta name="author" content="The Tournament Series">
-    
+
     {{-- Open Graph / Facebook --}}
     <meta property="og:type" content="website">
     <meta property="og:title" content="@yield('title', 'The Tournament Series')">
     <meta property="og:description" content="@yield('meta_description', 'The Tournament Series - Plataforma de torneos de eSports.')">
-    
+
     {{-- Twitter --}}
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('title', 'The Tournament Series')">
     <meta name="twitter:description" content="@yield('meta_description', 'The Tournament Series - Plataforma de torneos de eSports.')">
-    
+
     <title>@yield('title', 'The Tournament Series')</title>
-    
+
     {{-- Favicon --}}
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='l' x1='0%25' y1='0%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%2300e5cc'/><stop offset='100%25' stop-color='%2300b8a9'/></linearGradient></defs><circle cx='50' cy='50' r='48' fill='%23121212'/><g fill='url(%23l)' transform='translate(15,20)'><ellipse cx='8' cy='8' rx='4' ry='8' transform='rotate(-30 8 8)'/><ellipse cx='5' cy='18' rx='4' ry='8' transform='rotate(-50 5 18)'/><ellipse cx='4' cy='30' rx='4' ry='8' transform='rotate(-70 4 30)'/><ellipse cx='5' cy='42' rx='4' ry='7' transform='rotate(-85 5 42)'/><ellipse cx='8' cy='52' rx='4' ry='6' transform='rotate(-95 8 52)'/></g><g fill='url(%23l)' transform='translate(85,20) scale(-1,1)'><ellipse cx='8' cy='8' rx='4' ry='8' transform='rotate(-30 8 8)'/><ellipse cx='5' cy='18' rx='4' ry='8' transform='rotate(-50 5 18)'/><ellipse cx='4' cy='30' rx='4' ry='8' transform='rotate(-70 4 30)'/><ellipse cx='5' cy='42' rx='4' ry='7' transform='rotate(-85 5 42)'/><ellipse cx='8' cy='52' rx='4' ry='6' transform='rotate(-95 8 52)'/></g><text x='50' y='58' text-anchor='middle' font-family='Arial' font-size='28' font-weight='900' fill='white'>TTS</text></svg>">
-    
+
     @include('partials.styles')
     @stack('styles')
 </head>
@@ -48,13 +48,13 @@
                             <ellipse cx="10" cy="44" rx="3" ry="5" transform="rotate(85 10 44)"/>
                         </g>
                     </svg>
-                    
+
                     {{-- Texto --}}
                     <span class="brand-text">
                         <span class="brand-text-top">THE TOURNAMENT</span>
                         <span class="brand-text-bottom">SERIES</span>
                     </span>
-                    
+
                     {{-- Laurel derecho --}}
                     <svg class="laurel-right" viewBox="0 0 20 50" xmlns="http://www.w3.org/2000/svg">
                         <defs>
@@ -72,7 +72,7 @@
                         </g>
                     </svg>
                 </div>
-                
+
                 {{-- Versión móvil --}}
                 <div class="brand-laurel-wrapper-mobile show-mobile">
                     <svg class="laurel-left-sm" viewBox="0 0 20 50" xmlns="http://www.w3.org/2000/svg">
@@ -94,7 +94,7 @@
                     </svg>
                 </div>
             </a>
-            
+
             <a href="{{ url('/') }}">🏠 Inicio</a>
             <a href="{{ route('torneos.index') }}">⚔️ Torneos</a>
             <a href="{{ route('rankings.index') }}">🏆 Rankings</a>

@@ -99,8 +99,8 @@ class CalendarController extends Controller
                     'team1_name' => $team1Name,
                     'team2_name' => $team2Name,
                     'winner_name' => $match->winner?->name,
-                    'score' => $match->isCompleted() 
-                        ? "{$match->score_team1} - {$match->score_team2}" 
+                    'score' => $match->isCompleted()
+                        ? "{$match->score_team1} - {$match->score_team2}"
                         : null,
                     'google_calendar_url' => $this->generateGoogleCalendarUrl($match),
                 ],

@@ -9,11 +9,11 @@
 
     {{-- Tabs de tipo --}}
     <div class="ranking-tabs mb-2">
-        <a href="{{ route('rankings.index', ['type' => 'players', 'sort' => $sortBy]) }}" 
+        <a href="{{ route('rankings.index', ['type' => 'players', 'sort' => $sortBy]) }}"
            class="tab-btn {{ $type === 'players' ? 'active' : '' }}">
             👤 Jugadores
         </a>
-        <a href="{{ route('rankings.index', ['type' => 'teams', 'sort' => $sortBy]) }}" 
+        <a href="{{ route('rankings.index', ['type' => 'teams', 'sort' => $sortBy]) }}"
            class="tab-btn {{ $type === 'teams' ? 'active' : '' }}">
             👥 Equipos
         </a>
@@ -47,7 +47,7 @@
                         Todos
                     </option>
                     @foreach($games as $game)
-                        <option value="{{ route('rankings.index', ['type' => $type, 'sort' => $sortBy, 'game' => $game->slug]) }}" 
+                        <option value="{{ route('rankings.index', ['type' => $type, 'sort' => $sortBy, 'game' => $game->slug]) }}"
                                 {{ $gameFilter === $game->slug ? 'selected' : '' }}>
                             {{ $game->short_name }}
                         </option>
@@ -162,17 +162,17 @@
         font-size: 13px;
     }
 
-    .win-rate.high { 
+    .win-rate.high {
         background: rgba(0, 184, 148, 0.15);
-        color: var(--color-success); 
+        color: var(--color-success);
     }
-    .win-rate.medium { 
+    .win-rate.medium {
         background: rgba(243, 156, 18, 0.15);
-        color: var(--color-warning); 
+        color: var(--color-warning);
     }
-    .win-rate.low { 
+    .win-rate.low {
         background: rgba(231, 76, 60, 0.15);
-        color: var(--color-danger); 
+        color: var(--color-danger);
     }
 
     .streak.active {

@@ -335,11 +335,11 @@
         function fetchEvents(successCallback, failureCallback) {
             const params = new URLSearchParams();
             params.append('filter', filterType.value);
-            
+
             if (filterType.value === 'my_team' && filterTeam) {
                 params.append('team_id', filterTeam.value);
             }
-            
+
             if (filterTournament.value) {
                 params.append('tournament_id', filterTournament.value);
             }

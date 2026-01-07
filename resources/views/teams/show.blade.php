@@ -101,7 +101,7 @@
             $gamePositions = $team->tournament->game->positions ?? [];
             $currentUserId = auth()->id();
         @endphp
-        
+
         <div class="table-responsive">
         <table class="table">
             <thead>

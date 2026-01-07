@@ -69,9 +69,9 @@
 
             <div class="form-group">
                 <label for="banner">Banner del Torneo</label>
-                <input type="file" 
-                       id="banner" 
-                       name="banner" 
+                <input type="file"
+                       id="banner"
+                       name="banner"
                        class="form-control @error('banner') is-invalid @enderror"
                        accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
                 @error('banner')

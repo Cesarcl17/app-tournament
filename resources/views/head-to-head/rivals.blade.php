@@ -31,7 +31,7 @@
                             <span class="rival-tournament">{{ $rival->tournament->name }}</span>
                         @endif
                     </div>
-                    
+
                     <div class="rival-stats">
                         <div class="stat">
                             <span class="value text-success">{{ $wins }}</span>
@@ -50,7 +50,7 @@
                             <span class="label">Win Rate</span>
                         </div>
                     </div>
-                    
+
                     <div class="rival-actions">
                         <a href="{{ route('head-to-head.show', [$team, $rival]) }}" class="btn btn-sm btn-primary">
                             Ver historial

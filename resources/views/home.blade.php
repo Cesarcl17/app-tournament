@@ -1,4 +1,4 @@
-{{-- 
+{{--
     Esta vista no se usa - la ruta '/' usa HomeController que renderiza inicio.blade.php
     Se mantiene por compatibilidad pero redirige al inicio
 --}}

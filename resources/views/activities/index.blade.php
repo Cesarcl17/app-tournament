@@ -9,12 +9,12 @@
 
     {{-- Filtros --}}
     <div class="activity-filters mb-2">
-        <a href="{{ route('activities.index') }}" 
+        <a href="{{ route('activities.index') }}"
            class="filter-chip {{ !$currentType ? 'active' : '' }}">
             Todas
         </a>
         @foreach($types as $type => $label)
-            <a href="{{ route('activities.index', ['type' => $type]) }}" 
+            <a href="{{ route('activities.index', ['type' => $type]) }}"
                class="filter-chip {{ $currentType === $type ? 'active' : '' }}">
                 {{ $label }}
             </a>

@@ -17,10 +17,10 @@
         <form action="{{ route('torneos.index') }}" method="GET" class="search-form">
             {{-- Búsqueda por nombre --}}
             <div class="search-box">
-                <input type="text" 
-                       name="search" 
-                       class="form-control" 
-                       placeholder="Buscar torneo por nombre..." 
+                <input type="text"
+                       name="search"
+                       class="form-control"
+                       placeholder="Buscar torneo por nombre..."
                        value="{{ $filters['search'] ?? '' }}">
                 <button type="submit" class="btn btn-primary">🔍</button>
             </div>

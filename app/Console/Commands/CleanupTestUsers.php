@@ -14,7 +14,7 @@ class CleanupTestUsers extends Command
      *
      * @var string
      */
-    protected $signature = 'users:cleanup 
+    protected $signature = 'users:cleanup
                             {--force : Execute the cleanup without confirmation}
                             {--dry-run : Preview what would be deleted without actually deleting}';
 
@@ -30,7 +30,7 @@ class CleanupTestUsers extends Command
      */
     protected array $colorPatterns = [
         'Red',
-        'Blue', 
+        'Blue',
         'Green',
         'Yellow',
         'Orange',
@@ -61,10 +61,10 @@ class CleanupTestUsers extends Command
 
         // Get IDs of users to preserve
         $preservedUserIds = $this->getPreservedUserIds();
-        
+
         // Get users to delete
         $usersToDelete = User::whereNotIn('id', $preservedUserIds)->get();
-        
+
         // Get teams to delete (non-color teams)
         $colorTeamIds = $this->getColorTeamIds();
         $teamsToDelete = Team::whereNotIn('id', $colorTeamIds)->get();
@@ -126,7 +126,7 @@ class CleanupTestUsers extends Command
         $colorTeams = Team::whereIn('id', $colorTeamIds)->get();
         $this->newLine();
         $this->info("🎨 Color teams to preserve ({$colorTeams->count()}):");
-        
+
         foreach ($colorTeams as $team) {
             $memberCount = $team->users()->count();
             $captains = $team->captains()->pluck('name')->join(', ') ?: 'No captain';
@@ -167,13 +167,13 @@ class CleanupTestUsers extends Command
         if ($usersToDelete->count() > 0) {
             $this->newLine();
             $this->warn('🗑️  Users to be deleted:');
-            
+
             // Show first 10 users
             $preview = $usersToDelete->take(10);
             foreach ($preview as $user) {
                 $this->line("   - {$user->name} ({$user->email})");
             }
-            
+
             if ($usersToDelete->count() > 10) {
                 $remaining = $usersToDelete->count() - 10;
                 $this->line("   ... and {$remaining} more users");
@@ -183,11 +183,11 @@ class CleanupTestUsers extends Command
         if ($teamsToDelete->count() > 0) {
             $this->newLine();
             $this->warn('🗑️  Teams to be deleted:');
-            
+
             foreach ($teamsToDelete->take(10) as $team) {
                 $this->line("   - {$team->name}");
             }
-            
+
             if ($teamsToDelete->count() > 10) {
                 $remaining = $teamsToDelete->count() - 10;
                 $this->line("   ... and {$remaining} more teams");
@@ -211,10 +211,10 @@ class CleanupTestUsers extends Command
             if ($userCount > 0) {
                 // Delete in chunks to avoid memory issues
                 $userIds = $usersToDelete->pluck('id')->toArray();
-                
+
                 // Clean tournament_user pivot
                 DB::table('tournament_user')->whereIn('user_id', $userIds)->delete();
-                
+
                 // Delete users
                 User::whereIn('id', $userIds)->delete();
                 $this->info("   ✅ Deleted {$userCount} users");

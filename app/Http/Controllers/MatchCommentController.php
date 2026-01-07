@@ -22,7 +22,7 @@ class MatchCommentController extends Controller
 
         /** @var User|null $user */
         $user = Auth::user();
-        
+
         $canComment = $this->canUserComment($user, $match);
 
         return view('matches.comments', [

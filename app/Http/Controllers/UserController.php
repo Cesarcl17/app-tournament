@@ -22,7 +22,7 @@ class UserController extends Controller
 
         // Separate active and finished tournaments
         $now = now();
-        
+
         $activeTeams = $teams->filter(function ($team) use ($now) {
             return $team->tournament->end_date === null || $team->tournament->end_date >= $now;
         });
@@ -53,7 +53,7 @@ class UserController extends Controller
 
         foreach ($teams as $team) {
             $tournament = $team->tournament;
-            
+
             // Find the last match this team played
             $lastMatch = $tournament->matches()
                 ->where(function ($q) use ($team) {

@@ -16,7 +16,7 @@
                 <span class="team-tournament">{{ $team1->tournament->name }}</span>
             @endif
         </div>
-        
+
         <div class="h2h-score">
             <div class="score-numbers">
                 <span class="wins {{ $history['team1_wins'] > $history['team2_wins'] ? 'leading' : '' }}">{{ $history['team1_wins'] }}</span>
@@ -27,7 +27,7 @@
                 {{ $history['total_matches'] }} {{ Str::plural('enfrentamiento', $history['total_matches']) }}
             </div>
         </div>
-        
+
         <div class="h2h-team h2h-team-right {{ $history['team2_wins'] > $history['team1_wins'] ? 'leading' : '' }}">
             <a href="{{ route('teams.show', $team2) }}" class="team-name">{{ $team2->name }}</a>
             @if($team2->tournament)
@@ -56,7 +56,7 @@
         {{-- Historial de partidas --}}
         <div class="card mt-2">
             <div class="card-header">📜 Historial de enfrentamientos</div>
-            
+
             <div class="matches-list">
                 @foreach($history['matches'] as $match)
                     @php

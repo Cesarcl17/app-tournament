@@ -55,7 +55,7 @@ class HeadToHeadService
         foreach ($matches as $match) {
             $rivalId = $match->team1_id === $team->id ? $match->team2_id : $match->team1_id;
             $rival = $match->team1_id === $team->id ? $match->team2 : $match->team1;
-            
+
             if (!$rival) continue;
 
             if (!isset($rivals[$rivalId])) {

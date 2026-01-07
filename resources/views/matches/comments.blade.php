@@ -101,9 +101,9 @@
                 <form action="{{ route('matches.comments.store', $match) }}" method="POST" class="comment-form">
                     @csrf
                     <div class="form-group">
-                        <textarea name="content" 
-                                  class="form-control" 
-                                  rows="3" 
+                        <textarea name="content"
+                                  class="form-control"
+                                  rows="3"
                                   placeholder="Escribe un comentario..."
                                   maxlength="1000"
                                   required></textarea>

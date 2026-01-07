@@ -216,8 +216,8 @@
                     <div class="trophy-item">
                         <div class="trophy-icon">
                             @if($trophy->game && $trophy->game->logo)
-                                <img src="{{ asset('images/games/' . $trophy->game->logo) }}" 
-                                     alt="{{ $trophy->game->name }}" 
+                                <img src="{{ asset('images/games/' . $trophy->game->logo) }}"
+                                     alt="{{ $trophy->game->name }}"
                                      class="trophy-game-logo">
                             @else
                                 🏆

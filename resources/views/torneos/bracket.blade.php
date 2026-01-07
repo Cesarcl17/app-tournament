@@ -147,7 +147,7 @@
                                         $checkInMinutes = $tournament->check_in_minutes;
                                         $checkInStart = $match->scheduled_at->copy()->subMinutes($checkInMinutes);
                                     @endphp
-                                    
+
                                     <div class="bracket-checkin">
                                         <div class="checkin-header" title="El check-in abre {{ $checkInMinutes }} minutos antes de la partida">
                                             📋 Check-in
@@ -361,12 +361,12 @@ document.getElementById('exportBracketBtn').addEventListener('click', async func
         exportDiv.style.background = '#1a1a2e';
         exportDiv.style.padding = '20px';
         exportDiv.style.borderRadius = '8px';
-        
+
         // Clonar el bracket
         const bracketContainer = document.querySelector('.bracket-container');
         const legend = document.getElementById('bracketLegend');
         const champion = document.querySelector('.champion-banner');
-        
+
         // Crear header para la imagen
         const header = document.createElement('div');
         header.innerHTML = `
@@ -377,39 +377,39 @@ document.getElementById('exportBracketBtn').addEventListener('click', async func
                 @endif
             </div>
         `;
-        
+
         exportDiv.appendChild(header);
-        
+
         // Agregar banner del campeón si existe
         if (champion) {
             const championClone = champion.cloneNode(true);
             championClone.style.marginBottom = '20px';
             exportDiv.appendChild(championClone);
         }
-        
+
         // Clonar y agregar el bracket
         const bracketClone = bracketContainer.cloneNode(true);
-        
+
         // Remover elementos interactivos del clon
         bracketClone.querySelectorAll('form, details, .match-actions, button, .schedule-form').forEach(el => el.remove());
         bracketClone.querySelectorAll('.badge-primary').forEach(el => {
             if (el.textContent.trim() === 'Tu equipo') el.remove();
         });
-        
+
         exportDiv.appendChild(bracketClone);
-        
+
         // Agregar leyenda
         const legendClone = legend.cloneNode(true);
         legendClone.style.marginTop = '20px';
         exportDiv.appendChild(legendClone);
-        
+
         // Agregar footer con fecha
         const footer = document.createElement('div');
         footer.innerHTML = `
             <div style="text-align: center; margin-top: 20px; color: rgba(255,255,255,0.5); font-size: 12px;">
-                Generado el ${new Date().toLocaleDateString('es-ES', { 
-                    year: 'numeric', 
-                    month: 'long', 
+                Generado el ${new Date().toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'

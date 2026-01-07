@@ -61,7 +61,7 @@ class TournamentController extends Controller
 
         $tournaments = $query->orderBy('start_date', 'desc')->paginate(12)->withQueryString();
         $games = Game::active()->orderBy('name')->get();
-        
+
         // Preservar filtros actuales
         $filters = [
             'search' => $request->search,
@@ -788,12 +788,12 @@ class TournamentController extends Controller
 
         // Determinar si el usuario es capitán de alguno de los equipos
         $team = null;
-        
+
         $isTeam1Captain = $match->team1->users()
             ->wherePivot('role', 'captain')
             ->where('users.id', $user->id)
             ->exists();
-            
+
         $isTeam2Captain = $match->team2->users()
             ->wherePivot('role', 'captain')
             ->where('users.id', $user->id)

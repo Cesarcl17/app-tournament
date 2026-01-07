@@ -16,7 +16,7 @@
             {{-- Estadísticas --}}
             <div class="card">
                 <div class="card-header">📊 Estadísticas</div>
-                
+
                 @if($user->statistics)
                     @php $stats = $user->statistics; @endphp
                     <div class="stats-grid">
@@ -64,7 +64,7 @@
             {{-- Trofeos --}}
             <div class="card mt-2">
                 <div class="card-header">🏆 Trofeos ({{ $user->trophies->count() }})</div>
-                
+
                 @if($user->trophies->isEmpty())
                     <div class="empty-state-inline">
                         <span class="empty-icon">🏆</span>
@@ -76,8 +76,8 @@
                             <div class="trophy-item">
                                 <div class="trophy-icon">
                                     @if($trophy->game && $trophy->game->logo)
-                                        <img src="{{ asset('images/games/' . $trophy->game->logo) }}" 
-                                             alt="{{ $trophy->game->name }}" 
+                                        <img src="{{ asset('images/games/' . $trophy->game->logo) }}"
+                                             alt="{{ $trophy->game->name }}"
                                              class="trophy-game-logo">
                                     @else
                                         🏆
@@ -106,7 +106,7 @@
             {{-- Equipos Actuales --}}
             <div class="card">
                 <div class="card-header">👥 Equipos Actuales</div>
-                
+
                 @if($activeTeams->isEmpty())
                     <div class="empty-state-inline">
                         <span class="empty-icon">👥</span>
@@ -139,7 +139,7 @@
             {{-- Historial de Torneos --}}
             <div class="card mt-2">
                 <div class="card-header">📜 Historial de Torneos</div>
-                
+
                 @if($finishedTeams->isEmpty())
                     <div class="empty-state-inline">
                         <span class="empty-icon">📜</span>
@@ -148,7 +148,7 @@
                 @else
                     <ul class="tournament-history">
                         @foreach($finishedTeams as $team)
-                            @php 
+                            @php
                                 $result = $tournamentResults[$team->tournament->id] ?? null;
                             @endphp
                             <li class="history-item {{ $result && $result['is_champion'] ? 'champion' : '' }}">

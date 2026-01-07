@@ -54,7 +54,7 @@ class GameController extends Controller
         }
 
         $validated['active'] = $request->has('active');
-        
+
         // Ordenar team_sizes
         sort($validated['team_sizes']);
 
@@ -111,7 +111,7 @@ class GameController extends Controller
         }
 
         $validated['active'] = $request->has('active');
-        
+
         // Ordenar team_sizes
         sort($validated['team_sizes']);
 

@@ -22,7 +22,7 @@
         <div class="form-grid">
             <div class="form-group">
                 <label for="name">Nombre del Juego *</label>
-                <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" 
+                <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
                        value="{{ old('name', $game->name) }}" placeholder="Ej: League of Legends" required>
                 @error('name')
                     <span class="error-text">{{ $message }}</span>
@@ -31,7 +31,7 @@
 
             <div class="form-group">
                 <label for="short_name">Nombre Corto *</label>
-                <input type="text" id="short_name" name="short_name" class="form-control @error('short_name') is-invalid @enderror" 
+                <input type="text" id="short_name" name="short_name" class="form-control @error('short_name') is-invalid @enderror"
                        value="{{ old('short_name', $game->short_name) }}" placeholder="Ej: LoL" required>
                 @error('short_name')
                     <span class="error-text">{{ $message }}</span>
@@ -42,7 +42,7 @@
 
         <div class="form-group">
             <label for="description">Descripción</label>
-            <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" 
+            <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror"
                       rows="3" placeholder="Descripción breve del juego...">{{ old('description', $game->description) }}</textarea>
             @error('description')
                 <span class="error-text">{{ $message }}</span>
@@ -65,7 +65,7 @@
                 @endphp
                 @foreach($teamSizeOptions as $value => $label)
                     <label class="checkbox-card">
-                        <input type="checkbox" name="team_sizes[]" value="{{ $value }}" 
+                        <input type="checkbox" name="team_sizes[]" value="{{ $value }}"
                                {{ in_array($value, (array)$currentSizes) ? 'checked' : '' }}>
                         <span class="checkbox-card-label">{{ $label }}</span>
                     </label>
@@ -78,7 +78,7 @@
 
         <div class="form-group">
             <label for="positions">Posiciones/Roles del Juego</label>
-            <input type="text" id="positions" name="positions" class="form-control @error('positions') is-invalid @enderror" 
+            <input type="text" id="positions" name="positions" class="form-control @error('positions') is-invalid @enderror"
                    value="{{ old('positions', $game->positions ? implode(', ', $game->positions) : '') }}"
                    placeholder="Ej: Top, Jungle, Mid, ADC, Support">
             @error('positions')
@@ -89,7 +89,7 @@
 
         <div class="form-group">
             <label for="logo">Logo del Juego</label>
-            <input type="file" id="logo" name="logo" class="form-control @error('logo') is-invalid @enderror" 
+            <input type="file" id="logo" name="logo" class="form-control @error('logo') is-invalid @enderror"
                    accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
             @error('logo')
                 <span class="error-text">{{ $message }}</span>
@@ -103,7 +103,7 @@
                     <label>Logo actual:</label>
                     <div class="image-preview">
                         <img src="{{ asset('storage/' . $game->logo) }}" alt="{{ $game->name }}">
-                        <a href="#" class="btn btn-sm btn-danger" 
+                        <a href="#" class="btn btn-sm btn-danger"
                            onclick="event.preventDefault(); if(confirm('¿Eliminar logo?')) document.getElementById('delete-logo-form').submit();">
                             🗑️ Eliminar logo
                         </a>
@@ -134,7 +134,7 @@
             </a>
         </div>
     </form>
-    
+
     @if($game->logo)
     <form id="delete-logo-form" action="{{ route('admin.games.delete-logo', $game) }}" method="POST" style="display: none;">
         @csrf

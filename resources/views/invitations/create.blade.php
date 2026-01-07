@@ -10,16 +10,16 @@
 
     <div class="card">
         <div class="card-header">Enviar invitación por email</div>
-        
+
         <form action="{{ route('invitations.store', $team) }}" method="POST" class="invitation-form">
             @csrf
-            
+
             <div class="form-group">
                 <label for="email">Email del jugador *</label>
-                <input type="email" 
-                       name="email" 
-                       id="email" 
-                       class="form-control @error('email') is-invalid @enderror" 
+                <input type="email"
+                       name="email"
+                       id="email"
+                       class="form-control @error('email') is-invalid @enderror"
                        placeholder="jugador@ejemplo.com"
                        value="{{ old('email') }}"
                        required>
@@ -33,9 +33,9 @@
 
             <div class="form-group">
                 <label for="message">Mensaje personalizado (opcional)</label>
-                <textarea name="message" 
-                          id="message" 
-                          class="form-control @error('message') is-invalid @enderror" 
+                <textarea name="message"
+                          id="message"
+                          class="form-control @error('message') is-invalid @enderror"
                           rows="3"
                           placeholder="¡Únete a nuestro equipo! Necesitamos un jugador más..."
                           maxlength="500">{{ old('message') }}</textarea>
@@ -54,7 +54,7 @@
     @if($pendingInvitations->isNotEmpty())
         <div class="card mt-2">
             <div class="card-header">Invitaciones pendientes</div>
-            
+
             <table class="table">
                 <thead>
                     <tr>

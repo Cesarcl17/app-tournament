@@ -20,7 +20,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // ============================================
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-    
+
     // --- Gestión de Juegos (CRUD) ---
     Route::get('/admin/games', [GameController::class, 'index'])->name('admin.games.index');
     Route::get('/admin/games/create', [GameController::class, 'create'])->name('admin.games.create');

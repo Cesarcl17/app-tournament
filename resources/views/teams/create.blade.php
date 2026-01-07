@@ -36,9 +36,9 @@
 
             <div class="form-group">
                 <label for="logo">Logo del equipo</label>
-                <input type="file" 
-                       id="logo" 
-                       name="logo" 
+                <input type="file"
+                       id="logo"
+                       name="logo"
                        class="form-control @error('logo') is-invalid @enderror"
                        accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
                 @error('logo')
